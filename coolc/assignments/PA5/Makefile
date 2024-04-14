@@ -1,7 +1,8 @@
 
 ASSN = 5
 CLASS= dcc053
-CLASSDIR= /usr/coolc
+#CLASSDIR= /usr/coolc
+CLASSDIR= ${HOME}/comp1/coolc
 LIB= 
 AR= ar
 ARCHIVE_NEW= -cr
@@ -26,7 +27,7 @@ FFLAGS = -d8 -ocool-lex.cc
 BFLAGS = -d -v -y -b cool --debug -p cool_yy
 
 CC=g++
-CFLAGS=-g -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
+CFLAGS=-g -std=c++98 -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
 FLEX=flex ${FFLAGS}
 BISON= bison ${BFLAGS}
 DEPEND = ${CC} -MM ${CPPINCLUDE}
@@ -39,7 +40,7 @@ lsource: ${LSRC}
 # if make turnin says "turnin is up to date.", and you want to turnin
 # anyway, you can delete the file 'turnin', and do make turnin again.
 #
-turnin : ${SRC} ${OUTPUT} turnin-clean
+turnin: ${SRC} ${OUTPUT} turnin-clean
 	cd ..; ${CLASSDIR}/bin/turnin ${CLASS} PA${ASSN}
 
 turnin-clean:
@@ -83,7 +84,7 @@ ${TSRC} ${CSRC}:
 ${HSRC}:
 	-ln -s ${CLASSDIR}/include/PA${ASSN}/$@ $@
 
-clean :
+clean:
 	-rm -f ${OUTPUT} *.s core ${OBJS} cgen parser semant lexer *~ *.a *.o
 
 clean-compile:

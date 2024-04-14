@@ -1,7 +1,8 @@
 
 ASSN = 1
 CLASS= dcc053
-CLASSDIR= /usr/coolc
+#CLASSDIR= /usr/coolc
+CLASSDIR= ${HOME}/comp1/coolc
 SRC= stack.cl README 
 LSRC= Makefile atoi.cl stack.test
 
@@ -11,7 +12,7 @@ CFLAGS=-g
 .c.o:
 	${CC} ${CFLAGS} -c $<
 
-source :	lsource
+source:	lsource
 	${CLASSDIR}/etc/copy-skel ${ASSN} ${SRC}
 
 lsource:
@@ -26,5 +27,5 @@ test:	compile
 	@echo stack.test
 	${CLASSDIR}/bin/spim -file stack.s < stack.test
 
-clean :
+clean:
 	rm -f *.s core *~

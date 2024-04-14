@@ -1,10 +1,11 @@
 
 ASSN = 2
 CLASS= dcc053
-CLASSDIR= /usr/coolc
+#CLASSDIR= /usr/coolc
+CLASSDIR= ${HOME}/comp1/coolc
 LIB= 
 
-SRC= cool.flex test.cl README 
+SRC= cool.flex test.cl README
 CSRC= lextest.cc utilities.cc stringtab.cc handle_flags.cc
 TSRC= mycoolc
 HSRC= 
@@ -22,7 +23,7 @@ CPPINCLUDE= -I. -I${CLASSDIR}/include/PA${ASSN} -I${CLASSDIR}/src/PA${ASSN}
 FFLAGS= -d -ocool-lex.cc
 
 CC=g++
-CFLAGS= -g -Wall -Wno-unused ${CPPINCLUDE}
+CFLAGS= -g -std=c++98 -Wall -Wno-unused ${CPPINCLUDE}
 FLEX=flex ${FFLAGS}
 DEPEND = ${CC} -MM ${CPPINCLUDE}
 
@@ -68,7 +69,7 @@ ${HSRC}:
 submit-clean: ${OUTPUT}
 	-rm -f *.s core ${OBJS} lexer cool-lex.cc *~ parser cgen semant
 
-clean :
+clean:
 	-rm -f ${OUTPUT} *.s core ${OBJS} lexer cool-lex.cc *~ parser cgen semant
 
 clean-compile:

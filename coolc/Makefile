@@ -35,7 +35,8 @@
 # The COOL_DIR variable should be set to the root directory of the
 # distribution (the directory where this Makefile is).
 #
-COOL_DIR=/usr/coolc
+#COOL_DIR=/usr/coolc
+COOL_DIR=${HOME}/comp1/coolc
 
 # SCRIPT_SHELL should be set to the full
 # pathname of an `sh'-compatible shell

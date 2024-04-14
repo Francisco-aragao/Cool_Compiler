@@ -1,0 +1,20 @@
+# Temp bin files
+coolc/assignments/*/cgen
+coolc/assignments/*/lexer
+coolc/assignments/*/mycoolc
+coolc/assignments/*/parser
+coolc/assignments/*/myparser
+coolc/assignments/*/semant
+coolc/assignments/*/mysemant
+coolc/assignments/*/symtab_example
+
+# Temp object files, sources and symlinks
+coolc/assignments/*/*.a
+coolc/assignments/*/*.s
+coolc/assignments/*/*.d
+coolc/assignments/*/*.o
+coolc/assignments/*/*.cc
+coolc/assignments/*/*.h
+coolc/assignments/*/*.y
+coolc/assignments/*/*.aps
+coolc/assignments/*/*.output

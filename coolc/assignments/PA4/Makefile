@@ -1,7 +1,8 @@
 
 ASSN = 4
 CLASS= dcc053
-CLASSDIR= /usr/coolc
+#CLASSDIR= /usr/coolc
+CLASSDIR= ${HOME}/comp1/coolc
 LIB= 
 AR= ar
 ARCHIVE_NEW= -cr
@@ -26,7 +27,7 @@ BFLAGS = -d -v -y -b cool --debug -p cool_yy
 ASTBFLAGS = -d -v -y -b ast --debug -p ast_yy
 
 CC=g++
-CFLAGS=-g -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
+CFLAGS=-g -std=c++98 -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
 FLEX=flex ${FFLAGS}
 BISON= bison ${BFLAGS}
 DEPEND = ${CC} -MM ${CPPINCLUDE}
@@ -83,7 +84,7 @@ ${HSRC}:
 submit-clean: ${OUTPUT}
 	-rm -f *.s core ${OBJS} ${CGEN} ${HGEN} lexer *~ parser cgen semant symtab_example
 
-clean :
+clean:
 	-rm -f ${OUTPUT} *.s core ${OBJS} semant cgen symtab_example parser lexer *~ *.a *.o
 
 clean-compile:
