@@ -49,13 +49,52 @@ extern YYSTYPE cool_yylval;
  *  Add Your own definitions here
  */
 
+
 %}
 
 /*
  * Define names for regular expressions here.
  */
 
+/* 
+KEYWORDS:
+*/
+IF ("if"|"IF")
+THEN ("THEN"|"then")
+ELSE ("else"|"ELSE")
+FI ("fi"|"FI")
+
+WHILE ("while"|"WHILE")
+LOOP ("loop"|"LOOP")
+POOL ("pool"|"POOL")
+
+LET ("let"|"LET")
+IN ("in"|"IN")
+
+CASE ("case"|"CASE")
+OF ("of"|"OF")
+ESAC ("esac"|"ESAC")
+
+NEW ("new"|"NEW")
+
+ISVOID ("isvoid"|"ISVOID")
+
+NOT ("not"|"NOT")
+
+TRUE ("true")
+FALSE ("false")
+
+
 DARROW          =>
+LESSEQUAL <=
+ASSING <-
+
+MATH_OPERATORS ("+"|"-"|"*"|"/")
+
+WHITE_SPACE (" "|"\t")
+
+LITERALS ("")
+
 
 %%
 
@@ -75,6 +114,27 @@ DARROW          =>
   */
 
 
+{IF} {return (IF);}
+
+{THEN} {return (THEN);}
+{ELSE} {return (ELSE);}
+{FI} {
+  /*printf("comeco do valor lido %c%c\n", yytext[0], yytext[1]);
+  printf("\n~saida funcao: %d\n", cool_yylex());*/
+  return (FI);}
+
+[A-Z][0-9a-zA-Z_]* {
+  cool_yylval.symbol = idtable.add_string(yytext);
+  return (TYPEID);
+}
+ /*
+ * Digits
+ */
+
+[0-9]+ {
+  cool_yylval.symbol = inttable.add_string(yytext);
+  return (INT_CONST);
+}
  /*
   *  String constants (C syntax)
   *  Escape sequence \c is accepted for all characters c. Except for 
