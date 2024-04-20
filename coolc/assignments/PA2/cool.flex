@@ -45,10 +45,10 @@ extern int verbose_flag;
 
 extern YYSTYPE cool_yylval;
 
+
 /*
  *  Add Your own definitions here
  */
-
 
 %}
 
@@ -59,31 +59,35 @@ extern YYSTYPE cool_yylval;
 /* 
 KEYWORDS:
 */
-IF ("if"|"IF")
-THEN ("THEN"|"then")
-ELSE ("else"|"ELSE")
-FI ("fi"|"FI")
 
-WHILE ("while"|"WHILE")
-LOOP ("loop"|"LOOP")
-POOL ("pool"|"POOL")
+CLASS (?i:class)
 
-LET ("let"|"LET")
-IN ("in"|"IN")
+INHERITS (?i:inherits)
 
-CASE ("case"|"CASE")
-OF ("of"|"OF")
-ESAC ("esac"|"ESAC")
+ISVOID (?i:isvoid)
 
-NEW ("new"|"NEW")
+IF (?i:if)
+THEN (?i:then)
+ELSE (?i:else)
+FI (?i:fi)
 
-ISVOID ("isvoid"|"ISVOID")
+WHILE (?i:while)
+LOOP (?i:loop)
+POOL (?i:pool)
 
-NOT ("not"|"NOT")
+LET (?i:let)
+IN (?i:in)
 
-TRUE ("true")
-FALSE ("false")
+CASE (?i:case)
+OF (?i:of)
+ESAC (?i:esac)
 
+NEW (?i:new)
+
+NOT (?i:not)
+
+TRUE t(?i:rue)
+FALSE f(?i:alse)
 
 DARROW          =>
 LESSEQUAL <=
@@ -91,17 +95,54 @@ ASSING <-
 
 MATH_OPERATORS ("+"|"-"|"*"|"/")
 
-WHITE_SPACE (" "|"\t")
+WHITE_SPACE (" "|"\n"|"\f"|"\r"|"\t"|"\v")
 
 LITERALS ("")
 
+DIGIT [0-9]
+
+TYPEID  [A-Z][a-zA-Z0-9_]*
+OBJECTID  [a-z][a-zA-Z0-9_]*
+
+COMMENTS ["--"]*["\n"]
+START_COMMENT "(*"
+END_COMMENT "*)"
+
+%x COOL_NESTED_COMMENT
+%x COOL_SIMPLE_COMMENT
 
 %%
 
  /*
   *  Nested comments
   */
+<INITIAL>"(*" {
+  BEGIN(COOL_NESTED_COMMENT);
+}
 
+<INITIAL>"--" {
+  BEGIN(COOL_SIMPLE_COMMENT);
+}
+
+<COOL_SIMPLE_COMMENT>[^\n] {
+
+}
+
+<COOL_SIMPLE_COMMENT>"\n" {
+  curr_lineno++;
+}
+
+<COOL_NESTED_COMMENT>[^\n)] {
+  
+}
+
+<COOL_NESTED_COMMENT>"\n" {
+  curr_lineno++;
+}
+
+<COOL_NESTED_COMMENT>"*)" {
+  BEGIN(INITIAL);
+}
 
  /*
   *  The multiple-character operators.
@@ -113,9 +154,11 @@ LITERALS ("")
   * which must begin with a lower-case letter.
   */
 
+{CLASS} {return (CLASS);}
+
+{INHERITS} {return (INHERITS);}
 
 {IF} {return (IF);}
-
 {THEN} {return (THEN);}
 {ELSE} {return (ELSE);}
 {FI} {
@@ -123,15 +166,42 @@ LITERALS ("")
   printf("\n~saida funcao: %d\n", cool_yylex());*/
   return (FI);}
 
-[A-Z][0-9a-zA-Z_]* {
+{WHILE} {return (WHILE);}
+{LOOP} {return (LOOP);}
+{POOL} {return (POOL);}
+
+{LET} {return (LET);}
+{IN} {return (IN);}
+
+{CASE} {return (CASE);}
+{OF} {return (OF);}
+{ESAC} {return (ESAC);}
+
+{NEW} {return (NEW);}
+
+{ISVOID} {return (ISVOID);}
+
+{NOT} {return (NOT);}
+
+{TRUE}   { yylval.boolean = 1; return (BOOL_CONST); }
+{FALSE}  { yylval.boolean = 0; return (BOOL_CONST); }
+
+
+
+{TYPEID} {
   cool_yylval.symbol = idtable.add_string(yytext);
   return (TYPEID);
+}
+
+{OBJECTID} {
+  cool_yylval.symbol = idtable.add_string(yytext);
+  return (OBJECTID);
 }
  /*
  * Digits
  */
 
-[0-9]+ {
+{DIGIT}+ {
   cool_yylval.symbol = inttable.add_string(yytext);
   return (INT_CONST);
 }
@@ -142,5 +212,6 @@ LITERALS ("")
   *
   */
 
+\n {   curr_lineno++; }
 
 %%
