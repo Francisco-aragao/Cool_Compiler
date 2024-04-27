@@ -40,6 +40,14 @@ extern FILE *fin; /* we read from this file */
 char string_buf[MAX_STR_CONST]; /* to assemble string constants */
 char *string_buf_ptr;
 
+void concat_string_buf(char* string_value) {
+  strcat(string_buf, string_value);
+}
+
+void restart_string_buf() {
+  string_buf[0] = '\0';
+}
+
 extern int curr_lineno;
 extern int verbose_flag;
 
@@ -110,6 +118,7 @@ END_COMMENT "*)"
 
 %x COOL_NESTED_COMMENT
 %x COOL_SIMPLE_COMMENT
+%x READING_STRING
 
 %%
 
@@ -122,6 +131,36 @@ END_COMMENT "*)"
 
 <INITIAL>"--" {
   BEGIN(COOL_SIMPLE_COMMENT);
+}
+
+<INITIAL>"*)" {
+  yylval.error_msg = "Unmatched *)";
+  return (ERROR);
+}
+
+<INITIAL>\" {
+  restart_string_buf();
+  BEGIN(READING_STRING);
+}
+
+
+<READING_STRING>[^\n\0"] {
+  concat_string_buf(yytext);
+}
+
+<READING_STRING>\" {
+  BEGIN(INITIAL);
+
+  //cool_yylval.symbol = (char *) string_buf;
+
+  cool_yylval.symbol = stringtable.add_string((char *) string_buf);
+
+  if (strlen(string_buf) > MAX_STR_CONST) {
+    yylval.error_msg = "String constant too long";
+    return (ERROR);
+  }
+
+  return (STR_CONST);
 }
 
 <COOL_SIMPLE_COMMENT>[^\n] {
@@ -138,6 +177,14 @@ END_COMMENT "*)"
 
 <COOL_NESTED_COMMENT>"\n" {
   curr_lineno++;
+}
+
+<COOL_NESTED_COMMENT><<EOF>> {
+
+  BEGIN(INITIAL);
+  cool_yylval.error_msg = "EOF in comment";
+
+  return (ERROR);
 }
 
 <COOL_NESTED_COMMENT>"*)" {
