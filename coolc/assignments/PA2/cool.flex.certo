@@ -247,7 +247,7 @@ OBJECTID        [a-z]{IDSUFFIX}*
 {OBJECTID}      { yylval.symbol = idtable.add_string(yytext); return (OBJECTID); }
 
 \n              { curr_lineno += 1; }
-{WHITESPACE}+   {  }
+{WHITESPACE}+   {  } 
 
 {INVALIDS}      { yylval.error_msg = yytext; return (ERROR); }
 

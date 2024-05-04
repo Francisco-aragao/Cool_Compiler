@@ -98,14 +98,17 @@ TRUE t(?i:rue)
 FALSE f(?i:alse)
 
 DARROW          =>
-LESSEQUAL <=
-ASSING <-
+LE       <=
+ASSIGN          <-
 
 MATH_OPERATORS ("+"|"-"|"*"|"/")
 
-WHITE_SPACE (" "|"\n"|"\f"|"\r"|"\t"|"\v")
+NEW_LINE ("\n"|"\f"|"\t"|"\b")
+WHITE_SPACES (" "|"\n"|"\f"|"\r"|"\v"|"\t"|"\b")
 
-LITERALS ("")
+LITERAL ("("|")"|":"|"{"|"}"|";"|"."|","|"@"|"~"|"="|"<")
+
+CHAR_NOT_IN_COOL_GRAMAR ("#"|"'"|"?"|"!"|"^"|">"|"["|"]")
 
 DIGIT [0-9]
 
@@ -129,6 +132,10 @@ END_COMMENT "*)"
   BEGIN(COOL_NESTED_COMMENT);
 }
 
+<INITIAL>" " {}
+<INITIAL>"\b" {}
+<INITIAL>"\t" {}
+
 <INITIAL>"--" {
   BEGIN(COOL_SIMPLE_COMMENT);
 }
@@ -144,8 +151,55 @@ END_COMMENT "*)"
 }
 
 
-<READING_STRING>[^\n\0"] {
-  concat_string_buf(yytext);
+{CHAR_NOT_IN_COOL_GRAMAR} {
+    yylval.error_msg = yytext;
+    return (ERROR);
+}
+
+
+<READING_STRING>\n {
+  yylval.error_msg = "Unterminated string constant";
+  BEGIN(INITIAL);
+  //curr_lineno += 1;
+  return (ERROR);
+}
+
+<READING_STRING>\\n {
+  concat_string_buf("\n");
+}
+
+<READING_STRING>\\t {
+  concat_string_buf("\t");
+}
+
+<READING_STRING>\\f {
+  concat_string_buf("\f");
+}
+
+<READING_STRING>\\b {
+  concat_string_buf("\b");
+}
+
+<READING_STRING>\\0 {
+  concat_string_buf("0");
+}
+
+<READING_STRING>\\. {
+  concat_string_buf(&yytext[1]);
+}
+
+<READING_STRING>\0 {
+  yylval.error_msg = "String contains null character";
+  BEGIN(INITIAL);
+  curr_lineno += 1;
+  return (ERROR);
+}
+
+<READING_STRING><<EOF>> {
+  yylval.error_msg = "EOF in string constant";
+  BEGIN(INITIAL);
+  curr_lineno += 1;
+  return (ERROR);
 }
 
 <READING_STRING>\" {
@@ -157,23 +211,28 @@ END_COMMENT "*)"
 
   if (strlen(string_buf) > MAX_STR_CONST) {
     yylval.error_msg = "String constant too long";
+    BEGIN(INITIAL);
     return (ERROR);
   }
 
   return (STR_CONST);
 }
 
-<COOL_SIMPLE_COMMENT>[^\n] {
 
+
+<READING_STRING>(.|\n) {
+
+  concat_string_buf(yytext);
 }
 
 <COOL_SIMPLE_COMMENT>"\n" {
   curr_lineno++;
+  BEGIN(INITIAL);
 }
 
-<COOL_NESTED_COMMENT>[^\n)] {
-  
-}
+<COOL_SIMPLE_COMMENT>[^\n] {}
+
+<COOL_NESTED_COMMENT>[^\n] {}
 
 <COOL_NESTED_COMMENT>"\n" {
   curr_lineno++;
@@ -196,10 +255,14 @@ END_COMMENT "*)"
   */
 {DARROW}		{ return (DARROW); }
 
+
  /*
   * Keywords are case-insensitive except for the values true and false,
   * which must begin with a lower-case letter.
   */
+
+{LE}		{ return (LE); }
+{ASSIGN}		{ return (ASSIGN); }
 
 {CLASS} {return (CLASS);}
 
@@ -208,10 +271,10 @@ END_COMMENT "*)"
 {IF} {return (IF);}
 {THEN} {return (THEN);}
 {ELSE} {return (ELSE);}
-{FI} {
+{FI} {return (FI);}
   /*printf("comeco do valor lido %c%c\n", yytext[0], yytext[1]);
   printf("\n~saida funcao: %d\n", cool_yylex());*/
-  return (FI);}
+  
 
 {WHILE} {return (WHILE);}
 {LOOP} {return (LOOP);}
@@ -233,7 +296,15 @@ END_COMMENT "*)"
 {TRUE}   { yylval.boolean = 1; return (BOOL_CONST); }
 {FALSE}  { yylval.boolean = 0; return (BOOL_CONST); }
 
+{MATH_OPERATORS} {
+  char operator_inserted = yytext[0];
+  return (operator_inserted);
+}
 
+{LITERAL} {
+  char literal_inserted = yytext[0];
+  return (literal_inserted);
+}
 
 {TYPEID} {
   cool_yylval.symbol = idtable.add_string(yytext);
@@ -258,6 +329,11 @@ END_COMMENT "*)"
   *  \n \t \b \f, the result is c.
   *
   */
+
+.		{
+			yylval.error_msg = yytext;
+			return (ERROR);
+		}
 
 \n {   curr_lineno++; }
 
