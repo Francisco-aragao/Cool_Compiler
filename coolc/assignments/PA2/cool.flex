@@ -40,6 +40,7 @@ extern FILE *fin; /* we read from this file */
 char string_buf[MAX_STR_CONST]; /* to assemble string constants */
 char *string_buf_ptr;
 
+/* functions to handle strings */
 void concat_string_buf(char* string_value) {
   strcat(string_buf, string_value);
 }
@@ -54,20 +55,9 @@ extern int verbose_flag;
 extern YYSTYPE cool_yylval;
 
 
-/*
- *  Add Your own definitions here
- */
-
 %}
 
-/*
- * Define names for regular expressions here.
- */
-
-/* 
-KEYWORDS:
-*/
-
+ /* defining keywords rules */
 CLASS (?i:class)
 
 INHERITS (?i:inherits)
@@ -108,8 +98,6 @@ WHITE_SPACES (" "|"\n"|"\f"|"\r"|"\v"|"\t"|"\b")
 
 LITERAL ("("|")"|":"|"{"|"}"|";"|"."|","|"@"|"~"|"="|"<")
 
-CHAR_NOT_IN_COOL_GRAMAR ("#"|"'"|"?"|"!"|"^"|">"|"["|"]")
-
 DIGIT [0-9]
 
 TYPEID  [A-Z][a-zA-Z0-9_]*
@@ -125,45 +113,42 @@ END_COMMENT "*)"
 
 %%
 
- /*
-  *  Nested comments
-  */
+ /* Nested comments */
 <INITIAL>"(*" {
   BEGIN(COOL_NESTED_COMMENT);
 }
 
+ /* Whitespaces in text */
 <INITIAL>" " {}
 <INITIAL>"\b" {}
 <INITIAL>"\t" {}
 
+ /* Simple comments */
 <INITIAL>"--" {
   BEGIN(COOL_SIMPLE_COMMENT);
 }
 
+ /* Error comment */
 <INITIAL>"*)" {
   yylval.error_msg = "Unmatched *)";
   return (ERROR);
 }
 
+ /* Start string */
 <INITIAL>\" {
   restart_string_buf();
   BEGIN(READING_STRING);
 }
 
 
-{CHAR_NOT_IN_COOL_GRAMAR} {
-    yylval.error_msg = yytext;
-    return (ERROR);
-}
-
-
+ /* \n in string */
 <READING_STRING>\n {
   yylval.error_msg = "Unterminated string constant";
   BEGIN(INITIAL);
-  //curr_lineno += 1;
   return (ERROR);
 }
 
+ /* broken line in string with the escape char */
 <READING_STRING>\\n {
   concat_string_buf("\n");
 }
@@ -184,10 +169,12 @@ END_COMMENT "*)"
   concat_string_buf("0");
 }
 
+ /* Any other char not listed above, when appear with a escape signal, return the char */
 <READING_STRING>\\. {
   concat_string_buf(&yytext[1]);
 }
 
+   /* null char in string */
 <READING_STRING>\0 {
   yylval.error_msg = "String contains null character";
   BEGIN(INITIAL);
@@ -195,6 +182,7 @@ END_COMMENT "*)"
   return (ERROR);
 }
 
+   /* EOF in string */
 <READING_STRING><<EOF>> {
   yylval.error_msg = "EOF in string constant";
   BEGIN(INITIAL);
@@ -202,10 +190,9 @@ END_COMMENT "*)"
   return (ERROR);
 }
 
+   /* end string */
 <READING_STRING>\" {
   BEGIN(INITIAL);
-
-  //cool_yylval.symbol = (char *) string_buf;
 
   cool_yylval.symbol = stringtable.add_string((char *) string_buf);
 
@@ -218,26 +205,28 @@ END_COMMENT "*)"
   return (STR_CONST);
 }
 
-
-
+ /* reading symbols in string */
 <READING_STRING>(.|\n) {
 
   concat_string_buf(yytext);
 }
 
+ /* single comment ends in end line */
 <COOL_SIMPLE_COMMENT>"\n" {
   curr_lineno++;
   BEGIN(INITIAL);
 }
 
+ /* reading comment content */
 <COOL_SIMPLE_COMMENT>[^\n] {}
 
 <COOL_NESTED_COMMENT>[^\n] {}
 
+ /* nedted comment jumps to next line when read broken line */
 <COOL_NESTED_COMMENT>"\n" {
   curr_lineno++;
 }
-
+ /* error with EOF in comment */
 <COOL_NESTED_COMMENT><<EOF>> {
 
   BEGIN(INITIAL);
@@ -246,21 +235,14 @@ END_COMMENT "*)"
   return (ERROR);
 }
 
+ /* end nested comment */
 <COOL_NESTED_COMMENT>"*)" {
   BEGIN(INITIAL);
 }
 
- /*
-  *  The multiple-character operators.
-  */
+
+  /* keywords definition */
 {DARROW}		{ return (DARROW); }
-
-
- /*
-  * Keywords are case-insensitive except for the values true and false,
-  * which must begin with a lower-case letter.
-  */
-
 {LE}		{ return (LE); }
 {ASSIGN}		{ return (ASSIGN); }
 
@@ -272,9 +254,6 @@ END_COMMENT "*)"
 {THEN} {return (THEN);}
 {ELSE} {return (ELSE);}
 {FI} {return (FI);}
-  /*printf("comeco do valor lido %c%c\n", yytext[0], yytext[1]);
-  printf("\n~saida funcao: %d\n", cool_yylex());*/
-  
 
 {WHILE} {return (WHILE);}
 {LOOP} {return (LOOP);}
@@ -315,26 +294,19 @@ END_COMMENT "*)"
   cool_yylval.symbol = idtable.add_string(yytext);
   return (OBJECTID);
 }
- /*
- * Digits
- */
 
 {DIGIT}+ {
   cool_yylval.symbol = inttable.add_string(yytext);
   return (INT_CONST);
 }
- /*
-  *  String constants (C syntax)
-  *  Escape sequence \c is accepted for all characters c. Except for 
-  *  \n \t \b \f, the result is c.
-  *
-  */
 
+ /* If read any simbol not defined above, return error*/
 .		{
-			yylval.error_msg = yytext;
-			return (ERROR);
-		}
+	yylval.error_msg = yytext;
+	return (ERROR);
+}
 
+ /* just pass to the next line*/
 \n {   curr_lineno++; }
 
 %%
