@@ -174,3 +174,5 @@ Quanto as regras gerais, tem-se:
 ## Testes
 
 Para testar o lexer de forma extensiva, o arquivo test.cl foi estendido com o código completo de Conway's Game of Life e a saída comparada com a esperada. O código em questão é extenso e faz uso de várias ferramentas da linguagem COOL, assim sendo, este se prova como um bom teste para o lexer.
+
+Este código de teste estava disponível em **examples/life.cl**. 

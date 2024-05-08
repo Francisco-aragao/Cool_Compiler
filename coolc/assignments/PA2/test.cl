@@ -1,10 +1,13 @@
 (* The Game of Life 
    Tendo Kayiira, Summer '95
    With code taken from /private/cool/class/examples/cells.cl
+
  This introduction was taken off the internet. It gives a brief 
  description of the Game Of Life. It also gives the rules by which 
  this particular game follows.
+
 	Introduction
+
    John Conway's Game of Life is a mathematical amusement, but it 
    is also much more: an insight into how a system of simple 
    cellualar automata can create complex, odd, and often aesthetically 
@@ -12,11 +15,14 @@
    which are either 'on' or 'off' The game gets it's name from the 
    similarity between the behaviour of these cells and the behaviour 
    of living organisms.
+
  The Rules
+
   The playfield is a cartesian grid of arbitrary size. Each cell in 
   this grid can be in an 'on' state or an 'off' state. On each 'turn' 
   (called a generation,) the state of each cell changes simultaneously 
   depending on it's state and the state of all cells adjacent to it.
+
    For 'on' cells, 
       If the cell has 0 or 1 neighbours which are 'on', the cell turns 
         'off'. ('dies of loneliness') 
@@ -24,12 +30,15 @@
         'on'. (nothing happens to that cell) 
       If the cell has 4, 5, 6, 7, 8, or 9 neighbours which are 'on', 
         the cell turns 'off'. ('dies of overcrowding') 
+
    For 'off' cells, 
       If the cell has 0, 1, 2, 4, 5, 6, 7, 8, or 9 neighbours which 
         are 'on', the cell stays 'off'. (nothing happens to that cell) 
       If the cell has 3 neighbours which are 'on', the cell turns 
         'on'. (3 neighbouring 'alive' cells 'give birth' to a fourth.) 
+
    Repeat for as many generations as desired. 
+
  *)
  
 
@@ -424,3 +433,4 @@ class Main inherits CellularAutomaton {
       }  ) ); }
     };
 };
+
