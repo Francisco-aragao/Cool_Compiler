@@ -113,3 +113,64 @@ Instructions
 Write-up for PA2
 ----------------
 
+## Integrantes
+
+### Francisco Teixeira Rocha Aragão - 2021031726
+### Gabriel Pains de Oliveira Cardoso - 2021096887
+
+## Descrição do trabalho realizado
+
+## Variáveis auxiliares
+
+Nenhuma variável auxiliar foi utilizada, apenas estados diferentes, como em comentários aninhados ou strings por exemplo.
+A variável já incluída como extern **curr_lineno** foi utilizada para contar a linha atual.
+
+## Keywords
+
+As keywords da linguagem precisam ser case insensitive, então para as definições de cada keyword foi utilizado o operador **?i:** para garantir esse critério. Com a exceção das keywords true e false que devem começar com letra minúscula.
+
+## Operadores e whitespace
+
+Além das keywords, também foram definidas expressões para os operadores matemáticos e literais, bem como casos especiais para operadores de símbolos duplos como: =>, <= e <-. 
+
+Um grupo de símbolos para whitespace também foi definido, estes são ignorados com exceção do caractere newline, onde a variável **curr_lineno** é incrementada a cada vez que este caractere aparece.
+
+## Identificadores e comentários
+
+Por fim, expressões para dígitos, identificadores de tipo e nomes gerais foram definidos, além de expressões de início/fim de comentários e strings, que são usadas em conjunto para entrar em "modo" de leitura de string ou comentários, onde algumas regras são diferentes e precisam ser processadas de forma especial. 
+
+## Aplicação das regras
+
+Com o conjunto de expressões definido, o conjunto de regras que fazem uso de tais expressões foi criado. 
+
+As regras mais especializadas são a de comentários e strings.
+
+- Para comentários de linha única, é verificado a existência dos símbolos --, se sim, estes símbolos e quaisquer símbolos restantes até o fim da linha são ignorados.
+
+- Para comentários, é verificado se um bloco de comentários foi aberto com o símbolo (*, se sim, todos os símbolos são absorvidos e ignorados até encontrar um respectivo *). Se o fim do arquivo for encontrado antes desse marcador, o lexer retorna um erro.
+
+- Para strings, é verificado se o símbolo " ocorre, se sim, quaisquer caracteres são tratados como parte da string até o próximo ". Newlines e caracteres precedidos de \ são tratados de forma especial:
+	- O lexer retorna um error se um newline não for precedido de \\. 
+	- Se um caractere NULL for encontrado dentro da string, em erro também é gerado.
+	- Se a string for maior que 1025 caracteres, um erro é gerado.
+	- Novamente, se não houver um " corresponde até o fim do arquivo, o lexer retorna um erro.
+
+Quanto as regras gerais, tem-se:
+
+- Para as keywords e operadores, o nome do operador ou da keyword é retornado, ou seja, ao encontrar a palavra while, o lexer retorna WHILE.
+
+- Para valores booleanos o lexer retorna BOOL_CONST e atribui o valor correspondente para yylval.boolean. 
+
+- Para operadores matemáticos e pontuação, o lexer apenas retorna o símbolo encontrado.
+
+- Para identificadores, o lexer associa o nome encontrado a um TYPEID ou OBJECTID e salva o nome encontrado em uma idtable. 
+
+- Para inteiros, o processo é similar, o lexer associa o valor encontrado a um INT_CONST e adiciona o valor encontrado a uma inttable.
+
+- Como mencionado anteriormente, o símbolo newline(\n) apenas avança o contador **curr_lineno**.
+
+- Por fim, se qualquer símbolo que não foi definido nas expressões iniciais for encontrado, o lexer retorna um erro.
+
+## Testes
+
+Para testar o lexer de forma extensiva, o arquivo test.cl foi estendido com o código completo de Conway's Game of Life e a saída comparada com a esperada. O código em questão é extenso e faz uso de várias ferramentas da linguagem COOL, assim sendo, este se prova como um bom teste para o lexer.

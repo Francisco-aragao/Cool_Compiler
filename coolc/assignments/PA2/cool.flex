@@ -222,7 +222,7 @@ END_COMMENT "*)"
 
 <COOL_NESTED_COMMENT>[^\n] {}
 
- /* nedted comment jumps to next line when read broken line */
+ /* nested comment jumps to next line when read broken line */
 <COOL_NESTED_COMMENT>"\n" {
   curr_lineno++;
 }
