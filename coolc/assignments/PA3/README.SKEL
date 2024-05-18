@@ -132,3 +132,6 @@ Instructions
 
 Write-up for PA3
 ----------------
+
+
+PARA EXECUTAR -----> (DENTRO DA PASTA PA3)		./../PA2/lexer good.cl| ./parser

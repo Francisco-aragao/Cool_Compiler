@@ -79,7 +79,7 @@ submit-clean: ${OUTPUT}
 	-rm -f *.s core ${OBJS} ${CGEN} ${HGEN} lexer *~ parser cgen semant
 
 clean:
-	-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o 
+	-rm -f ${OUTPUT} *.s core ${OBJS} ${CGEN} ${HGEN} lexer parser cgen semant *~ *.a *.o *.d *.cc *.output
 
 clean-compile:
 	@-rm -f core ${OBJS} ${CGEN} ${HGEN} ${LSRC}
