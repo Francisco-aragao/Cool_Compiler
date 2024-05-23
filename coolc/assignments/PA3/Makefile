@@ -2,7 +2,7 @@
 ASSN = 3
 CLASS= dcc053
 #CLASSDIR= /usr/coolc
-CLASSDIR= ${HOME}/comp1/coolc
+CLASSDIR= ${HOME}/Cool_Compiler/coolc
 LIB= 
 AR= ar
 ARCHIVE_NEW= -cr
