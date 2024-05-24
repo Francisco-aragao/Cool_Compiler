@@ -14,7 +14,11 @@ coolc/assignments/*/*.s
 coolc/assignments/*/*.d
 coolc/assignments/*/*.o
 coolc/assignments/*/*.cc
-coolc/assignments/*/*.h
-# coolc/assignments/*/*.y ---> remove this rule : exclude cool.y from assingments/PA3
+coolc/assignments/*/*.h 
+coolc/assignments/*/*.y
 coolc/assignments/*/*.aps
 coolc/assignments/*/*.output
+
+# Important files to PA3
+!coolc/assignments/PA3/cool-tree.handcode.h
+!coolc/assignments/PA3/cool.y
