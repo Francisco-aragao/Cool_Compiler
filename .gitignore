@@ -15,6 +15,6 @@ coolc/assignments/*/*.d
 coolc/assignments/*/*.o
 coolc/assignments/*/*.cc
 coolc/assignments/*/*.h
-coolc/assignments/*/*.y
+# coolc/assignments/*/*.y ---> remove this rule : exclude cool.y from assingments/PA3
 coolc/assignments/*/*.aps
 coolc/assignments/*/*.output
