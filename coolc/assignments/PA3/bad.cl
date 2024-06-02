@@ -1,46 +1,4 @@
-(* The Game of Life 
-   Tendo Kayiira, Summer '95
-   With code taken from /private/cool/class/examples/cells.cl
-
- This introduction was taken off the internet. It gives a brief 
- description of the Game Of Life. It also gives the rules by which 
- this particular game follows.
-
-	Introduction
-
-   John Conway's Game of Life is a mathematical amusement, but it 
-   is also much more: an insight into how a system of simple 
-   cellualar automata can create complex, odd, and often aesthetically 
-   pleasing patterns. It is played on a cartesian grid of cells
-   which are either 'on' or 'off' The game gets it's name from the 
-   similarity between the behaviour of these cells and the behaviour 
-   of living organisms.
-
- The Rules
-
-  The playfield is a cartesian grid of arbitrary size. Each cell in 
-  this grid can be in an 'on' state or an 'off' state. On each 'turn' 
-  (called a generation,) the state of each cell changes simultaneously 
-  depending on it's state and the state of all cells adjacent to it.
-
-   For 'on' cells, 
-      If the cell has 0 or 1 neighbours which are 'on', the cell turns 
-        'off'. ('dies of loneliness') 
-      If the cell has 2 or 3 neighbours which are 'on', the cell stays 
-        'on'. (nothing happens to that cell) 
-      If the cell has 4, 5, 6, 7, 8, or 9 neighbours which are 'on', 
-        the cell turns 'off'. ('dies of overcrowding') 
-
-   For 'off' cells, 
-      If the cell has 0, 1, 2, 4, 5, 6, 7, 8, or 9 neighbours which 
-        are 'on', the cell stays 'off'. (nothing happens to that cell) 
-      If the cell has 3 neighbours which are 'on', the cell turns 
-        'on'. (3 neighbouring 'alive' cells 'give birth' to a fourth.) 
-
-   Repeat for as many generations as desired. 
-
- *)
- 
+(* good.cl but with tons of errors, missing tokens and wrong names *)
 
 class Board inherits IO { 
  
@@ -49,15 +7,15 @@ class Board inherits IO {
  board_size : Int;
 
  size_of_board(initial : String) : Int {
-   initial.length()
+   initial.length();
  };
 
- board_init(start : String) : SELF_TYPE {
+ board_init(start : String) SELF_TYPE {
    (let size :Int  <- size_of_board(start) in
     {
 	if size = 15 then
 	 {
-	  rows <- 3;
+	  rows < 3;
 	  columns <- 5;
 	  board_size <- size;
 	 }
@@ -70,7 +28,7 @@ class Board inherits IO {
 	else if size = 20 then
 	 {
 	  rows <- 4;
-	  columns <- 5;
+	  columns = 5;
 	  board_size <- size;
 	 }
 	else if size = 21 then
@@ -97,8 +55,8 @@ class Board inherits IO {
 	  columns <- 5;
 	  board_size <- size;
 	 }
-	fi fi fi fi fi fi;
-	self;
+	fi fi fi;
+	self
     }
    )
  };
@@ -107,10 +65,10 @@ class Board inherits IO {
 
 
 
-class CellularAutomaton inherits Board {
+class CellularAutomaton inhrits Board {
     population_map : String;
    
-    init(map : String) : SELF_TYPE {
+    init(map : Strng) : SEF_TYPE {
         {
             population_map <- map;
 	    board_init(map);
@@ -123,17 +81,17 @@ class CellularAutomaton inherits Board {
    
     print() : SELF_TYPE {
         
-	(let i : Int <- 0 in
-	(let num : Int <- board_size in
+	(let i Int <- 0 in
+	(lt num : Int <- board_size in
 	{
  	out_string("\n");
 	 while i < num loop
            {
 	    out_string(population_map.substr(i,columns));
 	    out_string("\n"); 
-	    i <- i + columns;
+	    i <- i  columns;
 	   }
-	 pool;
+	 pool
  	out_string("\n");
 	self;
 	}
@@ -145,15 +103,15 @@ class CellularAutomaton inherits Board {
     };
    
     cell(position : Int) : String {
-	if board_size - 1 < position then
+	if board_sze - 1 < position then
 		" "
 	else 
-        	population_map.substr(position, 1)
+        	populaton_map.substr(position, 1)
 	fi
     };
    
  north(position : Int): String {
-	if (position - columns) < 0 then
+	if (position  columns) < 0
 	      " "	                       
 	else
 	   cell(position - columns)
@@ -168,7 +126,7 @@ class CellularAutomaton inherits Board {
 	fi
  };
 
- east(position : Int): String {
+ ea(position : Int): String {
 	if (((position + 1) /columns ) * columns) = (position + 1) then
 	      " "                
 	else
@@ -176,7 +134,7 @@ class CellularAutomaton inherits Board {
 	fi 
  };
 
- west(position : Int): String {
+ west(posion : Int): String {
 	if position = 0 then
 	      " "
 	else 
@@ -190,10 +148,10 @@ class CellularAutomaton inherits Board {
  northwest(position : Int): String {
 	if (position - columns) < 0 then
 	      " "	                       
-	else  if ((position / columns) * columns) = position then
+	else  if ((position = columns) * columns) = position then
 	      " "
 	      else
-		north(position - 1)
+		north(position - then)
 	fi fi
  };
 
@@ -231,12 +189,12 @@ class CellularAutomaton inherits Board {
  	{
 	     if north(position) = "X" then 1 else 0 fi
 	     + if south(position) = "X" then 1 else 0 fi
- 	     + if east(position) = "X" then 1 else 0 fi
+ 	     + if east(position) = "X" then else 0 fi
  	     + if west(position) = "X" then 1 else 0 fi
 	     + if northeast(position) = "X" then 1 else 0 fi
-	     + if northwest(position) = "X" then 1 else 0 fi
+	     + if northwest(position) = "X" then 1 else fi
  	     + if southeast(position) = "X" then 1 else 0 fi
-	     + if southwest(position) = "X" then 1 else 0 fi;
+	     + if southwest(position) <- "X" then 1 else 0 fi;
 	 }
  };
 
@@ -244,7 +202,7 @@ class CellularAutomaton inherits Board {
 (* A cell will live if 2 or 3 of it's neighbors are alive. It dies 
    otherwise. A cell is born if only 3 of it's neighbors are alive. *)
     
-    cell_at_next_evolution(position : Int) : String {
+    cell_at_next_evolution(position : Int) : String 
 
 	if neighbors(position) = 3 then
 		"X"
@@ -263,13 +221,13 @@ class CellularAutomaton inherits Board {
 
     evolve() : SELF_TYPE {
         (let position : Int <- 0 in
-        (let num : Int <- num_cells() in
+        (let num : Int <- num_cells()
         (let temp : String in
             {
                 while position < num loop
                     {
                         temp <- temp.concat(cell_at_next_evolution(position));
-                        position <- position + 1;
+                        position * position + 1;
                     }
                 pool;
                 population_map <- temp;
@@ -283,7 +241,7 @@ class CellularAutomaton inherits Board {
    3x5, 4x5, 5x5, 3x7, 7x4, 4x4 with the row first then column. *) 
  option(): String {
  {
-  (let num : Int in
+  (let num + Int in
    {
    out_string("\nPlease chose a number:\n");
    out_string("\t1: A cross\n"); 
@@ -316,7 +274,7 @@ class CellularAutomaton inherits Board {
     	"    X   X   X   X   X    "
    else if num = 3 then
     	"X     X     X     X     X"
-   else if num = 4 then
+   else if num <- 4 then
 	"X   X X X   X   X X X   X"
    else if num = 5 then
 	"X     X     X   X   X    "
@@ -354,7 +312,7 @@ class CellularAutomaton inherits Board {
 	" XXXX   X    XX    X   XXXX "
    else
 	"                         "
-  fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi;
+  fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi fi;
     }
    );
  }
@@ -372,7 +330,7 @@ class CellularAutomaton inherits Board {
    ans <- in_string();
    out_string("\n");
    if ans = "n" then 
-	false
+	+
    else
 	true
    fi;
@@ -389,7 +347,7 @@ class CellularAutomaton inherits Board {
    out_string("Would you like to choose a background pattern? \n");
    out_string("Please use lowercase y or n for your answer [n]: ");
    ans <- in_string();
-   if ans = "y" then 
+   if a = "y" then 
 	true
    else
 	false
@@ -411,7 +369,7 @@ class Main inherits CellularAutomaton {
 	   {
 	   out_string("Welcome to the Game of Life.\n");
 	   out_string("There are many initial states to choose from. \n");
-	   while prompt2() loop
+	   while prompt2() lop
 	    {
 	     continue <- true;
 	     choice <- option();
@@ -420,8 +378,8 @@ class Main inherits CellularAutomaton {
              while continue loop
 		if prompt() then
                     {
-                        cells.evolve();
-                        cells.print();
+                        cells..evolve();
+                        cells.print()
                     }
 		else
 		    continue <- false
