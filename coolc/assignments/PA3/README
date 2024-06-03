@@ -142,59 +142,52 @@ PARA EXECUTAR -----> (DENTRO DA PASTA PA3)		./lexer good.cl | ./parser
 
 ## Descrição do trabalho realizado
 
-## Variáveis auxiliares
+## Tipos de regras
 
-Nenhuma variável auxiliar foi utilizada, apenas estados diferentes, como em comentários aninhados ou strings por exemplo.
-A variável já incluída como extern **curr_lineno** foi utilizada para contar a linha atual.
+Foram definidas alguns tipos de regras para o parser:
 
-## Keywords
+- A regra principal é *program* e representa a raiz da AST,  A classe Main é a raiz da AST.
 
-As keywords da linguagem precisam ser case insensitive, então para as definições de cada keyword foi utilizado o operador **?i:** para garantir esse critério. Com a exceção das keywords true e false que devem começar com letra minúscula.
+- Um tipo para *classes* também foi definido, assim como um tipo para *features* que são atributos ou métodos de uma classe.
 
-## Operadores e whitespace
+- Por fim um tipo para o *case* e a *lista de despacho de método* foi definida, além do tipo geral *expression* que engloba a maioria das cláusulas do COOL e boa parte da gramática. 
 
-Além das keywords, também foram definidas expressões para os operadores matemáticos e literais, bem como casos especiais para operadores de símbolos duplos como: =>, <= e <-. 
+- Em todo caso, tem-se um tipo único (single) e um tipo para múltiplas ocorrências (list).
 
-Um grupo de símbolos para whitespace também foi definido, estes são ignorados com exceção do caractere newline, onde a variável **curr_lineno** é incrementada a cada vez que este caractere aparece.
+## Precedência
 
-## Identificadores e comentários
+A precedência definida para o COOL é simples e segue o padrão usado em outras linguagens:
 
-Por fim, expressões para dígitos, identificadores de tipo e nomes gerais foram definidos, além de expressões de início/fim de comentários e strings, que são usadas em conjunto para entrar em "modo" de leitura de string ou comentários, onde algumas regras são diferentes e precisam ser processadas de forma especial. 
+- Operadores de comparação (<, =, <=) têm precedência não associativa.
 
-## Aplicação das regras
+- Atribuição (ASSIGN) tem precedência à direita, pois se atribui o Objeto da direita ao da esquerda.
 
-Com o conjunto de expressões definido, o conjunto de regras que fazem uso de tais expressões foi criado. 
+- Expressões lógicas (ISVOID, NOT) têm precedência à esquerda.
 
-As regras mais especializadas são a de comentários e strings.
+- Expressões aritméticas (+, -, *, /, ~, @) têm precedência à esquerda.
 
-- Para comentários de linha única, é verificado a existência dos símbolos --, se sim, estes símbolos e quaisquer símbolos restantes até o fim da linha são ignorados.
+- Chamada de método (.) tem precedência à esquerda, permitindo o encadeamento de chamadas.
 
-- Para comentários, é verificado se um bloco de comentários foi aberto com o símbolo (*, se sim, todos os símbolos são absorvidos e ignorados até encontrar um respectivo *). Se o fim do arquivo for encontrado antes desse marcador, o lexer retorna um erro.
+## Implementação
 
-- Para strings, é verificado se o símbolo " ocorre, se sim, quaisquer caracteres são tratados como parte da string até o próximo ". Newlines e caracteres precedidos de \ são tratados de forma especial:
-	- O lexer retorna um error se um newline não for precedido de \\. 
-	- Se um caractere NULL for encontrado dentro da string, em erro também é gerado.
-	- Se a string for maior que 1025 caracteres, um erro é gerado.
-	- Novamente, se não houver um " corresponde até o fim do arquivo, o lexer retorna um erro.
+A utilização do *Bison* é bem simples, na maioria dos casos, basta traduzir a gramática para o formato do **Bison**, da seguinte maneira:
 
-Quanto as regras gerais, tem-se:
+- Cada terminal é escrito diretamente.
 
-- Para as keywords e operadores, o nome do operador ou da keyword é retornado, ou seja, ao encontrar a palavra while, o lexer retorna WHILE.
+- Regras e tipos são escritos com o nome definido no lexer e no início do parser.
 
-- Para valores booleanos o lexer retorna BOOL_CONST e atribui o valor correspondente para yylval.boolean. 
+- Regras recursivas chamam o nome das outras regras, assim como na definição da gramática.
 
-- Para operadores matemáticos e pontuação, o lexer apenas retorna o símbolo encontrado.
+Assim, a implementação das regras é objetiva e curta. Mesmo assim, são muitas regras e especialmente o caso de expressões, com muitas variações teve de ser implementado cuidadosamente.
 
-- Para identificadores, o lexer associa o nome encontrado a um TYPEID ou OBJECTID e salva o nome encontrado em uma idtable. 
+## Tratamento de erros
 
-- Para inteiros, o processo é similar, o lexer associa o valor encontrado a um INT_CONST e adiciona o valor encontrado a uma inttable.
-
-- Como mencionado anteriormente, o símbolo newline(\n) apenas avança o contador **curr_lineno**.
-
-- Por fim, se qualquer símbolo que não foi definido nas expressões iniciais for encontrado, o lexer retorna um erro.
+Em várias regras, quando o token **error** aparece, a entrada é consumida e o parser segue adiante. Assim, se houver erros durante o processo de parsing, o parser imprime o erro em questão e continua o parsing. Dessa forma, é possível imprimir vários erros sobre um programa de uma vez. **(ver arquivo bad.output)**
 
 ## Testes
 
-Para testar o lexer de forma extensiva, o arquivo test.cl foi estendido com o código completo de Conway's Game of Life e a saída comparada com a esperada. O código em questão é extenso e faz uso de várias ferramentas da linguagem COOL, assim sendo, este se prova como um bom teste para o lexer.
+Para testar o lexer de forma extensiva, o arquivo **good.cl** foi estendido com o código completo de Conway's Game of Life. O código em questão é extenso e faz uso de várias ferramentas da linguagem COOL, assim sendo, este se prova como um bom teste para o parser. Ainda, para testar a produção de erros do parser, vários erros foram inseridos no mesmo código de good.cl, se tornando o arquivo **bad.cl**. O parser corretamente aponta vários erros de sintaxe neste arquivo.
 
 Este código de teste estava disponível em **examples/life.cl**. 
+
+As respectivas saídas estão disponíveis em **good.output** e **bad.output**

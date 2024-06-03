@@ -85,12 +85,9 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* Declare types for the grammar's non-terminals. */
 
-/* OLHAR ARQUIVO /src/PA3/cool.tree.cc LÁ TEM AS FUNCOES PRA SEREM USADAS NO BISON - DICA DE QUAIS DECLARACOES FAZER*/
 %type <program> program
 %type <classes> class_list
 %type <class_> class_single
-
-/* OLHANDO PELA GRAMATICA DE COOL, ALGUNS TOKENS PODEM VIR COM *, ENTÃO TEM O CASO DELE SER UNICO OU COMO FECHO KLEENE, por isso coloco como list ou single*/
 
 %type <features> feature_list /* FEATURE = ATRIBUTO OU METODO*/
 %type <feature> feature_single
@@ -131,7 +128,6 @@ int omerrs = 0;               /* number of errors in lexing and parsing */
 
 /* ***************************** NÃO USAR RECURSAO A DIREITA NAS REGRAS, SÓ A ESQUERDA (PAG 46 BISON) */
 
-/* OLHAR ARQUIVO /src/PA3/cool.tree.cc LÁ TEM AS FUNCOES PRA SEREM USADAS NO BISON - DICA DE QUAIS DECLARACOES FAZER*/
 
 program:
   class_list
@@ -159,7 +155,7 @@ class_list:
 
 class_single:
   CLASS TYPEID '{' feature_list '}' ';'
-{ /* olhar definição função class_: nome é TYPEID, pai (não tem herança) é object, feature é feature_list, filename é nome arquivo*/
+{
     $$ = class_($2, idtable.add_string("Object"), $4, stringtable.add_string(curr_filename));
 }
 |
