@@ -2,7 +2,7 @@
 ASSN = 1
 CLASS= dcc053
 #CLASSDIR= /usr/coolc
-CLASSDIR= ${HOME}/comp1/coolc
+CLASSDIR= ${HOME}/Cool_Compiler/coolc
 SRC= stack.cl README 
 LSRC= Makefile atoi.cl stack.test
 

@@ -22,3 +22,13 @@ coolc/assignments/*/*.output
 # Important files to PA3
 !coolc/assignments/PA3/cool-tree.handcode.h
 !coolc/assignments/PA3/cool.y
+
+# Important files to PA5
+!coolc/assignments/PA5/cgen.cc
+!coolc/assignments/PA5/cgen.h
+!coolc/assignments/PA5/cgen_supp.cc
+!coolc/assignments/PA5/emit.h
+!coolc/assignments/PA5/symtab.h
+!coolc/assignments/PA5/cool.h
+!coolc/assignments/PA5/stringtab.h
+!coolc/assignments/PA5/dumptype.cc

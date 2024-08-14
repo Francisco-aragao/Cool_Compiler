@@ -2,7 +2,7 @@
 ASSN = 2
 CLASS= dcc053
 #CLASSDIR= /usr/coolc
-CLASSDIR= ${HOME}/comp1/coolc
+CLASSDIR= ${HOME}/Cool_Compiler/coolc
 LIB= 
 
 SRC= cool.flex test.cl README
