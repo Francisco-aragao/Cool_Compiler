@@ -171,3 +171,4 @@ AI RODAR ./mycoolc -o <arquivo saida assembly> <arq entrada cool> (NÃO SEI PQ F
 
 DPS spim -file <nome do arquivo de saida assembly que foi passado>
 
+Olhar sempre o cool-tree.h pq lá tem a definição dos trem

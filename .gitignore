@@ -32,3 +32,4 @@ coolc/assignments/*/*.output
 !coolc/assignments/PA5/cool.h
 !coolc/assignments/PA5/stringtab.h
 !coolc/assignments/PA5/dumptype.cc
+!coolc/assignments/PA5/cool-tree.h

@@ -497,6 +497,8 @@ void BoolConst::code_def(ostream& s, int boolclasstag)
       s << WORD << val << endl;                             // value (0 or 1)
 }
 
+/// -> AQUI: CODIGO STATE
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  CgenClassTable methods
@@ -619,6 +621,7 @@ void CgenClassTable::code_constants()
   code_bools(boolclasstag);
 }
 
+/// -> AQUI: VARIAS FUNÇÕES
 
 CgenClassTable::CgenClassTable(Classes classes, ostream& s) : nds(NULL) , str(s)
 {
@@ -818,7 +821,7 @@ void CgenNode::set_parentnd(CgenNodeP p)
   parentnd = p;
 }
 
-
+/// -> AQUI: TURBO NA FUNCAO CODE
 
 void CgenClassTable::code()
 {
@@ -880,6 +883,8 @@ CgenNode::CgenNode(Class_ nd, Basicness bstatus, CgenClassTableP ct) :
 //
 //*****************************************************************
 
+/// -> AQUI: FAZER ESSA PARTE DE CODE
+
 void assign_class::code(ostream &s) {
 }
 
@@ -905,6 +910,30 @@ void let_class::code(ostream &s) {
 }
 
 void plus_class::code(ostream &s) {
+
+  // avalio e1
+  e1->code(s, st);
+  emit_push(ACC, s); // salvo acc na pilha
+  st.AddObstacle(); // salvo que salvei na pilha
+  s << endl;
+
+  // avalio e2
+  e2->code(s, st);
+  emit_jal("Object.copy", s); // copio o resultado de e2 para salvar
+  s << endl;
+
+  emit_addiu(SP, SP, 4, s); // ajusto pilha
+  emit_load(T1, 0, SP, s); // recupero o valor de e1
+  emit_move(T2, ACC, s); // salvo o valor de e2
+  s << endl;
+
+  emit_load(T1, 3, T1, s); // carrego t1 pelo offset correto
+  emit_load(T2, 3, T2, s); // carrego t2 pelo offset correto
+  s << endl;
+
+  emit_add(T3, T1, T2, s); // somo e1 (t1) e e2 (t2) em t3
+  emit_store(T3, 3, ACC, s); // salvo resultado em acc no offset correto
+  s << endl;
 }
 
 void sub_class::code(ostream &s) {
