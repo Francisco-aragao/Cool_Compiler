@@ -919,7 +919,7 @@ void plus_class::code(ostream &s) {
 
   // avalio e2
   e2->code(s, st);
-  emit_jal("Object.copy", s); // copio o resultado de e2 para salvar
+  emit_jal("Object.copy", s); // copio o resultado de e2 para salvar, já que não estou adicionando e2 na pilha.
   s << endl;
 
   emit_addiu(SP, SP, 4, s); // ajusto pilha

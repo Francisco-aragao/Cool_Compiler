@@ -172,3 +172,9 @@ AI RODAR ./mycoolc -o <arquivo saida assembly> <arq entrada cool> (NÃO SEI PQ F
 DPS spim -file <nome do arquivo de saida assembly que foi passado>
 
 Olhar sempre o cool-tree.h pq lá tem a definição dos trem
+
+cgen.h -> Tem umas adições mais em cima, não sei pq
+	Tem adições por conta da classe State
+	Precisa da classe State pra manter controle da geracao de codigo durante a execucao, entrando e saindo de diferentes escopos (controlando as variaveis que foram criadas e que devem ser removidas), fazer lookup na tabela de simbolos e parametro e salvar classe atual que está sendo analisada. AddOBstacle abre novo escopo e adiciona nova variavel
+
+cool-tree.handcode.h -> Tem as funcoes que são chamadas no cgen.cc. tbm não sei pq tem adições lá
