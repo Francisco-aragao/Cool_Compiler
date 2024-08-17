@@ -12,7 +12,7 @@
 #include "cool-tree.handcode.h"
 #include <vector>
 
-class State;
+class CurrentCodeState;
 
 // define the class for phylum
 // define simple phylum - Program

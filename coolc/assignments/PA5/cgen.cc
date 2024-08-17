@@ -355,7 +355,7 @@ static void emit_test_collector(ostream& s) {
   emit_move(ACC, SP, s); // stack end
   emit_move(A1, ZERO, s); // allocate nothing
   s << JAL << gc_collect_names[cgen_Memmgr] << endl;
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(ACC, 0, SP, s);
 }
 
@@ -508,7 +508,7 @@ void BoolConst::code_def(ostream& s, int boolclasstag) {
 }
 
 
-int State::AddObstacle() {
+int CurrentCodeState::AddObstacle() {
     EnterScope();
     return AddVar(No_class);
 }
@@ -855,7 +855,7 @@ void method_class::code(ostream& s, CgenNode* class_node) {
   s << endl;
 
   s << "\t# evaluating expression and put it to ACC" << endl;
-  State st;
+  CurrentCodeState st;
   st.m_class_node = class_node;
   for (int i = formals->first(); formals->more(i); i = formals->next(i)) {
       st.AddParam(formals->nth(i)->GetName());
@@ -973,7 +973,7 @@ void CgenNode::code_init(ostream& s) {
         emit_store(ACC, 3 + idx, SELF, s);
       }
     } else {
-      State st;
+      CurrentCodeState st;
       st.m_class_node = this;
       attrib->init->code(s, st);
       
@@ -1295,11 +1295,11 @@ CgenNode::CgenNode(Class_ nd, Basicness bstatus, CgenClassTableP ct) :
 //
 //*****************************************************************
 
-void assign_class::code(ostream& s, State st) {
+void assign_class::code(ostream& s, CurrentCodeState st) {
   // avalia a expressao
   expr->code(s, st);
 
-  // procurap pelo valor
+  // proco pelo valor da variavel
   int idx;
 
   if ((idx = st.LookUpVar(name)) != -1) {
@@ -1332,10 +1332,10 @@ void assign_class::code(ostream& s, State st) {
   }
 }
 
-void static_dispatch_class::code(ostream& s, State st) {
+void static_dispatch_class::code(ostream& s, CurrentCodeState st) {
   // avalia e salva os parametros
   std::vector<Expression> actuals = GetActuals();
-  State new_st = st;
+  CurrentCodeState new_st = st;
 
   for (Expression expr : actuals) {
     expr->code(s, st);
@@ -1347,7 +1347,7 @@ void static_dispatch_class::code(ostream& s, State st) {
   // avalia o objeto de dispatch
   expr->code(s, st);
 
-  // se o objeto eh void, entao aborta
+  // se o objeto é igual a void, aborto
   emit_bne(ACC, ZERO, label_num, s);
   s << LA << ACC << " str_const0" << endl;
   emit_load_imm(T1, 1, s);
@@ -1375,7 +1375,7 @@ void static_dispatch_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void dispatch_class::code(ostream& s, State st) {
+void dispatch_class::code(ostream& s, CurrentCodeState st) {
   // avalia e salva os parametros
   std::vector<Expression> actuals = GetActuals();
 
@@ -1385,10 +1385,10 @@ void dispatch_class::code(ostream& s, State st) {
     st.AddObstacle();
   }
 
-  // avalia o objeto no dispatch
+  // avalio o objeto no dispatch
   expr->code(s, st);
 
-  // se o objeto eh void, entao aborta
+  // se o objeto é igual a void, aborto
   emit_bne(ACC, ZERO, label_num, s);
   s << LA << ACC << " str_const0" << endl;
   emit_load_imm(T1, 1, s);
@@ -1419,18 +1419,18 @@ void dispatch_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void cond_class::code(ostream& s, State st) {
+void cond_class::code(ostream& s, CurrentCodeState st) {
   // avalia a condicao
   pred->code(s, st);
 
-  // extrai o booleano do acumulador para t1
+  // coloco ACC em t1
   emit_fetch_int(T1, ACC, s);
   s << endl;
 
   int label_num_false = label_num++;
   int label_num_finish = label_num++;
 
-  // se t1 eh 0, vai para o branch false
+  // se t1 eh 0, vou pra ramificação falsa
   emit_beq(T1, ZERO, label_num_false, s);
   s << endl;
 
@@ -1439,16 +1439,16 @@ void cond_class::code(ostream& s, State st) {
   emit_branch(label_num_finish, s);
   s << endl;
 
-  // false
+  // falso
   emit_label_def(label_num_false, s);
 
   else_exp->code(s, st);
 
-  // finish
+  // fim
   emit_label_def(label_num_finish, s);
 }
 
-void loop_class::code(ostream& s, State st) {
+void loop_class::code(ostream& s, CurrentCodeState st) {
   int start = label_num;
   int finish = label_num + 1;
   label_num += 2;
@@ -1478,7 +1478,7 @@ void loop_class::code(ostream& s, State st) {
   emit_move(ACC, ZERO, s);
 }
 
-void typcase_class::code(ostream& s, State st) {
+void typcase_class::code(ostream& s, CurrentCodeState st) {
   std::map<Symbol, int> _class_tags = cgen_classtable->GetClassTags();
   std::vector<CgenNode*> _class_nodes = cgen_classtable->GetClassNodes();
   
@@ -1573,25 +1573,25 @@ void typcase_class::code(ostream& s, State st) {
     st.AddVar(_name);
     emit_push(ACC, s);
     _expr->code(s, st);
-    emit_addiu(SP, SP, 4, s);
+    emit_addiu(SP, SP, 4, s); // avanço posicao pilha
 
     // vai para o final
     emit_branch(finish, s);
     ++caseidx;
   }
 
-  // finish
+  // fim
   emit_label_def(finish, s);
   s << endl;
 }
 
-void block_class::code(ostream& s, State st) {
+void block_class::code(ostream& s, CurrentCodeState st) {
   for (int i = body->first(); body->more(i); i = body->next(i)) {
     body->nth(i)->code(s, st);
   }
 }
 
-void let_class::code(ostream& s, State st) {
+void let_class::code(ostream& s, CurrentCodeState st) {
   // avalia o valor inicial
   init->code(s, st);
 
@@ -1613,23 +1613,23 @@ void let_class::code(ostream& s, State st) {
 
   body->code(s, st);
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   s << endl;
 }
 
-void plus_class::code(ostream& s, State st) {
-  // avalia e1
+void plus_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
-  // avalia e2 e faz uma copia para resultado
+  // avaliação de e2 e copio resultado (para não atrapalhar o que foi salvo)
   e2->code(s, st);
   emit_jal("Object.copy", s);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1643,19 +1643,19 @@ void plus_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void sub_class::code(ostream& s, State st) {
-  // avalia e1
+void sub_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
-  // avalia e2 e faz uma copia para resultado
+  // avaliação de e2 e copio resultado (para não atrapalhar o que foi salvo)
   e2->code(s, st);
   emit_jal("Object.copy", s);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1669,19 +1669,19 @@ void sub_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void mul_class::code(ostream& s, State st) {
-  // avalia e1
+void mul_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
-  // avalia e2 e faz uma copia para resultado
+  // avaliação de e2 e copio resultado (para não atrapalhar o que foi salvo)
   e2->code(s, st);
   emit_jal("Object.copy", s);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1695,19 +1695,19 @@ void mul_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void divide_class::code(ostream& s, State st) {
-  // avalia e1
+void divide_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
-  // avalia e2 e faz uma copia para resultado
+  // avaliação de e2 e copio resultado (para não atrapalhar o que foi salvo)
   e2->code(s, st);
   emit_jal("Object.copy", s);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1721,8 +1721,8 @@ void divide_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void neg_class::code(ostream& s, State st) {
-  // avalia e2 e faz uma copia para resultado
+void neg_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação de e2 e copio resultado (para não atrapalhar o que foi salvo)
   e1->code(s, st);
   emit_jal("Object.copy", s);
   s << endl;
@@ -1733,18 +1733,18 @@ void neg_class::code(ostream& s, State st) {
   s << endl;
 }
 
-void lt_class::code(ostream& s, State st) {
-  // avalia e1
+void lt_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
   // avalia e2
   e2->code(s, st);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1762,22 +1762,23 @@ void lt_class::code(ostream& s, State st) {
   ++label_num;
 }
 
-void eq_class::code(ostream& s, State st) {
-  // avalia e1
+void eq_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
   // avalia e2
   e2->code(s, st);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
 
+  // faço verificação dos tipos de ambas expressoes pra saber se é possível comparar
   if (e1->type == Int || e1->type == Str || e1->type == Bool) {
     if (e2->type == Int || e2->type == Str || e2->type == Bool) {
       emit_load_bool(ACC, BoolConst(1), s);
@@ -1796,18 +1797,18 @@ void eq_class::code(ostream& s, State st) {
   ++label_num;
 }
 
-void leq_class::code(ostream& s, State st) {
-  // avalia e1
+void leq_class::code(ostream& s, CurrentCodeState st) {
+  // avaliação da primeira exp e1
   e1->code(s, st);
   emit_push(ACC, s);
-  st.AddObstacle();
+  st.AddObstacle(); // adiciono marcador para saber onde está e1
   s << endl;
 
   // avalia e2
   e2->code(s, st);
   s << endl;
 
-  emit_addiu(SP, SP, 4, s);
+  emit_addiu(SP, SP, 4, s); // avanço posicao pilha
   emit_load(T1, 0, SP, s);
   emit_move(T2, ACC, s);
   s << endl;
@@ -1827,7 +1828,7 @@ void leq_class::code(ostream& s, State st) {
   ++label_num;
 }
 
-void comp_class::code(ostream& s, State st) {
+void comp_class::code(ostream& s, CurrentCodeState st) {
   // avalia a booleano
   e1->code(s, st);
 
@@ -1847,19 +1848,19 @@ void comp_class::code(ostream& s, State st) {
   ++label_num;
 }
 
-void int_const_class::code(ostream& s, State st) {
+void int_const_class::code(ostream& s, CurrentCodeState st) {
   emit_load_int(ACC, inttable.lookup_string(token->get_string()), s);
 }
 
-void string_const_class::code(ostream& s, State st) {
+void string_const_class::code(ostream& s, CurrentCodeState st) {
   emit_load_string(ACC, stringtable.lookup_string(token->get_string()), s);
 }
 
-void bool_const_class::code(ostream& s, State st) {
+void bool_const_class::code(ostream& s, CurrentCodeState st) {
   emit_load_bool(ACC, BoolConst(val), s);
 }
 
-void new__class::code(ostream& s, State st) {
+void new__class::code(ostream& s, CurrentCodeState st) {
   if (type_name == SELF_TYPE) {
     emit_load_address(T1, "class_objTab", s);
 
@@ -1875,18 +1876,18 @@ void new__class::code(ostream& s, State st) {
     emit_push(T1, s);
     s << endl;
 
-    // carrega o protObj para o acumulador
+    // carrega o protObj para ACC
     emit_load(ACC, 0, T1, s);
     s << endl;
 
     emit_jal("Object.copy", s);
 
-    // pop no endereco de protObj 
+    // faço pop no endereco de protObj 
     emit_load(T1, 1, SP, s);
-    emit_addiu(SP, SP, 4, s);
+    emit_addiu(SP, SP, 4, s); // avanço posicao pilha
     s << endl;
 
-    // pega o endereco inicial
+    // pego o endereco inicial
     emit_load(T1, 1, T1, s);
     s << endl;
 
@@ -1910,7 +1911,7 @@ void new__class::code(ostream& s, State st) {
   emit_jal(dest.c_str(), s);
 }
 
-void isvoid_class::code(ostream& s, State st) {
+void isvoid_class::code(ostream& s, CurrentCodeState st) {
   e1->code(s, st);
 
   // t1 = acc
@@ -1931,11 +1932,11 @@ void isvoid_class::code(ostream& s, State st) {
   ++label_num;
 }
 
-void no_expr_class::code(ostream& s, State st) {
+void no_expr_class::code(ostream& s, CurrentCodeState st) {
   emit_move(ACC, ZERO, s);
 }
 
-void object_class::code(ostream& s, State st) {
+void object_class::code(ostream& s, CurrentCodeState st) {
   int idx;
 
   if ((idx = st.LookUpVar(name)) != -1) {

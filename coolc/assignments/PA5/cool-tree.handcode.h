@@ -11,7 +11,7 @@
 #define yylineno curr_lineno;
 extern int yylineno;
 
-class State;
+class CurrentCodeState;
 
 inline Boolean copy_Boolean(Boolean b) {return b; }
 inline void assert_Boolean(Boolean) {}
@@ -98,13 +98,13 @@ void dump_with_types(ostream& ,int);
 Symbol type;                                 \
 Symbol get_type() { return type; }           \
 Expression set_type(Symbol s) { type = s; return this; } \
-virtual void code(ostream&, State) = 0; \
+virtual void code(ostream&, CurrentCodeState) = 0; \
 virtual void dump_with_types(ostream&,int) = 0;  \
 void dump_type(ostream&, int);               \
 Expression_class() { type = (Symbol) NULL; }
 
 #define Expression_SHARED_EXTRAS           \
-void code(ostream&, State); 			   \
+void code(ostream&, CurrentCodeState); 			   \
 void dump_with_types(ostream&,int); 
 
 

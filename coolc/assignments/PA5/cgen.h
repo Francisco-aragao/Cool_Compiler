@@ -142,10 +142,10 @@ public:
    void code_ref(ostream&) const;
 };
 
-class State
+class CurrentCodeState
 {
 public:
-   State() : m_class_node(nullptr) {}
+   CurrentCodeState() : m_class_node(nullptr) {}
 
    void EnterScope() {
       m_scope_lengths.push_back(0);
