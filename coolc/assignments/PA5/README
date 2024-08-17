@@ -178,3 +178,5 @@ cgen.h -> Tem umas adições mais em cima, não sei pq
 	Precisa da classe State pra manter controle da geracao de codigo durante a execucao, entrando e saindo de diferentes escopos (controlando as variaveis que foram criadas e que devem ser removidas), fazer lookup na tabela de simbolos e parametro e salvar classe atual que está sendo analisada. AddOBstacle abre novo escopo e adiciona nova variavel
 
 cool-tree.handcode.h -> Tem as funcoes que são chamadas no cgen.cc. tbm não sei pq tem adições lá
+
+emit.h -> tive que adicionar outro temporatio (t3)

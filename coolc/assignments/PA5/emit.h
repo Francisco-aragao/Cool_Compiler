@@ -37,7 +37,6 @@
 #define STRCONST_PREFIX      "str_const"
 #define BOOLCONST_PREFIX     "bool_const"
 
-
 #define EMPTYSLOT            0
 #define LABEL                ":\n"
 
@@ -65,46 +64,16 @@
 //
 // register names
 //
-Register const ZERO = "$zero";		// Zero register 
-Register const ACC  = "$a0";		// Accumulator 
-Register const A1   = "$a1";		// For arguments to prim funcs 
-Register const SELF = "$s0";		// Ptr to self (callee saves) 
-Register const T1   = "$t1";		// Temporary 1 
-Register const T2   = "$t2";		// Temporary 2 
-Register const SP   = "$sp";		// Stack pointer 
-Register const FP   = "$fp";		// Frame pointer 
-Register const RA   = "$ra";		// Return address 
-
-//
-// General-purpose registers for use by the register allocator:
-//
-// $t0, $t1, $t2, $t3, $t4, $v0, $v1, $a0, $a1, $a2, $gp, $s7 are used by 
-// Object.copy, _GenGC_Collect, etc.  So don't use them here. 
-// And $s0 is spoken for.
-//
-// We are also limited by the GC's register mask
-//
-// These registers are all treated as callee-saves.
-
-int const NUM_REGS = 6;
-Register const regNames[NUM_REGS] = 
-  {
-    "$s1",
-    "$s2",
-    "$s3",
-    "$s4",
-    "$s5",
-    "$s6"
-  };
-
-//returns true if name is one of the registers in regNames.
-//If this returns false, the register might be e.g. ACC, which is frequently
-//overwritten.
-bool isAllocatedReg (Register name);
-inline bool regEq(Register r1, Register r2)
-  //Assume that r1 and r2 are two of the constants above (in regNames or the 
-  //individual constants like ACC), so pointer equality is enough.
-  { return r1 == r2; }
+#define ZERO "$zero"	// Zero register 
+#define ACC  "$a0"		// Accumulator 
+#define A1   "$a1"		// For arguments to prim funcs 
+#define SELF "$s0"		// Ptr to self (callee saves) 
+#define T1   "$t1"		// Temporary 1 
+#define T2   "$t2"		// Temporary 2 
+#define T3   "$t3"		// Temporary 3 
+#define SP   "$sp"		// Stack pointer 
+#define FP   "$fp"		// Frame pointer 
+#define RA   "$ra"		// Return address 
 
 //
 // Opcodes
@@ -135,5 +104,3 @@ inline bool regEq(Register r1, Register r2)
 #define BLEQ     "\tble\t"
 #define BLT      "\tblt\t"
 #define BGT      "\tbgt\t"
-
-

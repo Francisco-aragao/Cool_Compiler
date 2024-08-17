@@ -63,5 +63,3 @@ void emit_string_constant(ostream& str, char* s)
   byte_mode(str);
   str << "\t.byte\t0\t" << endl;
 }
-
-

@@ -27,7 +27,7 @@ FFLAGS = -d8 -ocool-lex.cc
 BFLAGS = -d -v -y -b cool --debug -p cool_yy
 
 CC=g++
-CFLAGS=-g -std=c++98 -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
+CFLAGS=-g -std=c++98 -std=gnu++0x -Wall -Wno-unused ${CPPINCLUDE} -DDEBUG
 FLEX=flex ${FFLAGS}
 BISON= bison ${BFLAGS}
 DEPEND = ${CC} -MM ${CPPINCLUDE}
