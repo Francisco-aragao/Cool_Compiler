@@ -161,24 +161,48 @@ Instructions
 Write-up for PA5
 ----------------
 
-https://github.com/MarlonJrBM/mm-cool-cgen -> OLHAR referencia 
+Francisco Teixeira Rocha Aragão - 2021031726
+Gabriel Pains de Oliveira Cardoso - 2021096887
 
-REPOSITORIO: ~/comp1/Cool_Compiler ....
+O presente trabalho aborda a última etapa da compilação, responsável por pegar a AST que representa o programa (que já passou por outras etapas, como lexer, parser e análise semântica) e gerar código Assembly para a máquina utilizando o software SPIM.
 
-DAR MAKE CGEN
+É possível executar o trabalho com os seguintes comandos:
+Obs: Primeiramente é necessário atualizar o caminho presente nos arquivos Makefile para o diretório atual em que estão os arquivos
+- make cgen -> Compila o código do gerador de código
+- make -> faz o link com as outras estruturas do compilador
+- ./mycoolc -o <arquivo de saída> <arquivo de entrada> -> Gera o código Assembly para o arquivo de entrada
+	- Exemplo: ./mycoolc -o example.s example.cl
+	- Obs: O arquivo mycoolc é um script que chama o lexer, parser, semant e cgen
+- spim -file <arquivo de saída> -> Executa o código Assembly gerado
 
-DPS SÓ DAR MAKE -> TER BISON E SPIM INSTALADO
+Explicando sobre o processo de desenvolvimento do trabalho, a criação de código para a linguagem COOL (Classroom Object-Oriented Language) é facilitada por ferramentas já existentes, como o coletor de lixo e a biblioteca do sistema de runtime, o que simplifica bastante o trabalho, pois evita a necessidade de criar tudo do zero.
 
-AI RODAR ./mycoolc -o <arquivo saida assembly> <arq entrada cool> (NÃO SEI PQ FAZ ISSO. mycoolc é um arquivo que ta dentro de src. Só faz isso: ./lexer $* | ./parser $* | ./semant $* | ./cgen $*)
+O processo de geração de código passa por várias fases até chegar ao código Assembly, que é o que a máquina vai realmente executar, como exemplo desse processo temos que:
 
-DPS spim -file <nome do arquivo de saida assembly que foi passado>
+- Montar a árvore de dependências entre as classes: Aqui, as classes são organizadas numa estrutura que mostra como elas estão ligadas.
+- Percorrer a árvore de herança: Usando essa árvore, preenchemos informações sobre as classes, considerando a herança.
+- Criar o ambiente de compilação para cada classe: É feito um ambiente de compilação especial para cada classe.
+- Fazer as tabelas de despacho: São criadas tabelas que mostram os métodos de cada classe.
+- Gerar o código do ambiente de compilação: Nessa etapa, fazemos tabelas de protótipos, tabelas de despacho e tabelas de verificação de herança para cada classe.
+- Gerar o código para os métodos das classes: Por último, geramos o código para cada método das classes.
 
-Olhar sempre o cool-tree.h pq lá tem a definição dos trem
+Muitas dessas informções já foram implementadas e estão disponiveis na classe CgenClassTable.
 
-cgen.h -> Tem umas adições mais em cima, não sei pq
-	Tem adições por conta da classe State
-	Precisa da classe State pra manter controle da geracao de codigo durante a execucao, entrando e saindo de diferentes escopos (controlando as variaveis que foram criadas e que devem ser removidas), fazer lookup na tabela de simbolos e parametro e salvar classe atual que está sendo analisada. AddOBstacle abre novo escopo e adiciona nova variavel
+Em COOL, as classes são representadas por blocos de memória que têm todas as informações necessárias para rodar o programa. Esses blocos incluem:
 
-cool-tree.handcode.h -> Tem as funcoes que são chamadas no cgen.cc. tbm não sei pq tem adições lá
+- O nome da classe
+- O tamanho da classe
+- Um ponteiro para a tabela de despacho, que lista os métodos da classe
+- Os atributos da classe, arranjados de maneira que os atributos herdados fiquem antes dos atributos próprios da classe, facilitando o acesso.
 
-emit.h -> tive que adicionar outro temporatio (t3)
+Tais funcionalidades estão presentes no arquivo cgen.h que possui definições para as estruturas mencionadas acima. Outro exemplo desse arquivo é a classe auxiliar CurrentCodeStat que guarda informações sobre variáveis, parâmetros e escopo, o que ajuda na geração de código para os pedaços da AST. Outro fator importante é verificar informações na tabela de simbolos, além de entrar e sair de escopos durante a geração de código. Essa classe é fundamental e foi usada nas demais funções de geração de código no arquivo cgen.cc pois nela é possível salvar as informações do estado corrente do código que está sendo executado.
+
+As funções são guardadas em registros de ativação, que são blocos de memória que armazenam variáveis locais, parâmetros, endereço de volta e um ponteiro para o registro de ativação anterior, permitindo a recursão. Tudo isso é abstraído pelo sistema de runtime do COOL, que também cuida da coleta de lixo. 
+
+O objetivo da tarefa do trabalho não é otimizar o código, mas andar pela AST e gerar código para cada pedaço. Foi usado uma máquina de pilha com um registrador para acumular os resultados (ACC) e outro como topo da pilha (SP). Dessa forma, foi gerado código para expressões e juntamos os resultados no acumulador, usando o registrador de topo da pilha para evitar ir na memória, o que seria mais lento. A estrutura desse processo está pronta no arquivo cgen.cc, e cada função da AST possui seu próprio método de gerar código. Assim, são avaliados as expressões de cada procedimento, atualizando e salvando valores na pilha para entõ gerar o Assembly.
+
+Para facilitar o trabalho, os nomes dos registradores foram definidos como macros, então dá para usar eles em todo o gerador de código. No arquivo emit.h existem definições de parâmetros utilizados, sendo adicionados também registradores auxiliares (como o t3) para salvar valores intermediarios durante a geração de código.
+
+Com todas essas etapas feitas, dá para gerar código para programas COOL bem feitos. Depois da análise semântica, o programa só deve ter erros de lógica, que foram colocados pelo programador. Se algum erro aparecer no código Assembly, o gerador de código pode parar a execução e avisar sobre o problema. Dessa forma, foi utilizado no arquivo 'example.cl' o jogo da vida de conway para testar o gerador de código, e o resultado foi o assembly construido para cada trecho do arquivo. Vale lembrar que essa etapa do trabalho é a ultima do processo de compilação, então possíveis erros no código não são verificados durante a geração de código, por isso o arquivo de exemplo foi feito com um programa que estava correto e bem implementado.
+
+Comentando sobre um exemplo de uma função para gerar código, temos no arquivo cgen.cc a função cond_class::code, que é responsável por gerar código para a expressão condicional. Nela, é feita a avaliação da expressão de teste, e se ela for verdadeira, o código para a expressão then é gerado, senão, o código para a expressão else é gerado. O código gerado é salvo na pilha, e o resultado é guardado no acumulador. Essa função é um exemplo de como as funções de geração de código são implementadas, e como elas são responsáveis por gerar código para cada pedaço da AST.
