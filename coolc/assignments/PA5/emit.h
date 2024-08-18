@@ -12,6 +12,7 @@
 //
 ///////////////////////////////////////////////////////////////////////
 
+
 #include "stringtab.h"
 #include "cool-tree.handcode.h"
 
@@ -62,7 +63,7 @@
 #define WORD          "\t.word\t"
 
 //
-// register names
+// Definindo nome dos registradores que serão usados
 //
 #define ZERO "$zero"	// Zero register 
 #define ACC  "$a0"		// Accumulator 
@@ -70,7 +71,7 @@
 #define SELF "$s0"		// Ptr to self (callee saves) 
 #define T1   "$t1"		// Temporary 1 
 #define T2   "$t2"		// Temporary 2 
-#define T3   "$t3"		// Temporary 3 
+#define T3   "$t3"		// Temporary 3 -> importante para salvar resultados auxiliares
 #define SP   "$sp"		// Stack pointer 
 #define FP   "$fp"		// Frame pointer 
 #define RA   "$ra"		// Return address 

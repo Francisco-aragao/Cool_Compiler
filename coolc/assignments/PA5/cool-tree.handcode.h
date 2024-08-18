@@ -1,3 +1,4 @@
+
 //
 // The following include files must come first.
 
@@ -11,7 +12,7 @@
 #define yylineno curr_lineno;
 extern int yylineno;
 
-class CurrentCodeState;
+class CurrentCodeState; // definindo classe CurrentCodeState para facilitar geração de código
 
 inline Boolean copy_Boolean(Boolean b) {return b; }
 inline void assert_Boolean(Boolean) {}
@@ -93,12 +94,12 @@ virtual void dump_with_types(ostream& ,int) = 0;
 #define branch_EXTRAS                                   \
 void dump_with_types(ostream& ,int);
 
-
+/* usando CurrentCodeState na função code para facilitar a geração de código */
 #define Expression_EXTRAS                    \
 Symbol type;                                 \
 Symbol get_type() { return type; }           \
 Expression set_type(Symbol s) { type = s; return this; } \
-virtual void code(ostream&, CurrentCodeState) = 0; \
+virtual void code(ostream&, CurrentCodeState) = 0; \ 
 virtual void dump_with_types(ostream&,int) = 0;  \
 void dump_type(ostream&, int);               \
 Expression_class() { type = (Symbol) NULL; }
